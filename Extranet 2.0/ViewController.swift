@@ -7,19 +7,51 @@
 //
 
 import UIKit
+import Alamofire
 
 class ViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
+        
+        
+        Alamofire.request("https://auth.myefrei.fr/uaa/login").responseString { response in // method defaults to `.get`
+            print(response.result.value!)
+            
+            if let data = response.result.value {
+            
+                let csrf = data.slice(from: "value=\"", to: "\"/>")
+            
+                print(csrf!)
+            }
+            
+        }
+        
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    func login() {
+        
+        let parameters = [ "username" : user, "password" : password, "_csrf" : token]
+        
+        Alamofire.request("https://auth.myefrei.fr/uaa/login").responseString { response in // method defaults to `.get`
+            print(response.result.value!)
+            
+            
+        }
+        
     }
-
 
 }
 
+extension String {
+    
+    func slice(from: String, to: String) -> String? {
+        
+        return (range(of: from)?.upperBound).flatMap { substringFrom in
+            (range(of: to, range: substringFrom..<endIndex)?.lowerBound).map { substringTo in
+                String(self[substringFrom..<substringTo])
+            }
+        }
+    }
+}
